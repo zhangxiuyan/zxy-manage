@@ -1,0 +1,44 @@
+server:
+  port:
+
+spring:
+  application:
+    name:
+  mvc:
+    path match:
+      matching-strategy: ant-path-matcher
+  datasource:
+    url:
+    username:
+    password:
+    driverClassName:
+    type:
+
+  redis:
+    host:
+    port:
+    database:
+    password:
+
+druid:
+  filters: stat
+  initialSize: 1
+  minIdle: 1
+  maxActive: 20
+  maxWait: 6000
+  timeBetweenEvictionRunsMillis: 60000
+  minEvictableIdleTimeMillis: 300000
+
+
+#eureka:
+#  instance:
+#    hostname: localhost
+#    preferIpAddress: true
+#    instanceId: ${spring.application.name}:${spring.cloud.client.ip-address}:${spring.application.instance_id:${server.port}}
+#  client:
+#    healthcheck:
+#      enabled: true
+#    registerWithEureka: false
+#    fetchRegistry: false
+#    serviceUrl:
+#      defaultZone: https://${eureka.instance.hostname}:${server.port}/eureka/
