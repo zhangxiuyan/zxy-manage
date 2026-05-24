@@ -15,7 +15,7 @@ import xyz.zhangxiuyan.manage.mapper.UserMfaMapper;
 import xyz.zhangxiuyan.manage.service.MfaService;
 import xyz.zhangxiuyan.manage.utils.AesUtil;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;

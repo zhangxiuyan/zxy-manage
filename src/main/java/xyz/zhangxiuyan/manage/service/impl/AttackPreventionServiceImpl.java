@@ -8,7 +8,7 @@ import xyz.zhangxiuyan.manage.exception.RateLimitException;
 import xyz.zhangxiuyan.manage.service.AttackPreventionService;
 import xyz.zhangxiuyan.manage.service.LoginLogService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
 /**

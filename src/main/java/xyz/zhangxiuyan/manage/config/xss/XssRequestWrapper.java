@@ -2,19 +2,28 @@ package xyz.zhangxiuyan.manage.config.xss;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 
-import javax.servlet.ReadListener;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+/**
+ * XSS 请求包装器 — 对请求参数、Header、JSON Body 做安全处理。
+ * <p>
+ * 策略：
+ * <ul>
+ *   <li>Query 参数：URL 编码（不删除内容，避免破坏合法数据如 "description"）</li>
+ *   <li>Header：剥离控制字符（RFC 7230）</li>
+ *   <li>JSON Body：对字符串值使用 OWASP HTML Sanitizer（纯文本模式，移除 HTML 标签）</li>
+ * </ul>
+ */
 public class XssRequestWrapper extends HttpServletRequestWrapper {
 
     private final byte[] cachedBody;
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public XssRequestWrapper(HttpServletRequest request) throws IOException {
@@ -22,22 +31,20 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
         cachedBody = readAndCleanBody(request);
     }
 
-    // -----------------------------
-    // 1. Query Param 清理
-    // -----------------------------
+    // ---- Query 参数 ----
+
     @Override
     public String getParameter(String name) {
-        return EscapeUtils.escape(super.getParameter(name), EscapeUtils.EscapeType.QUERY_PARAM);
+        return EscapeUtils.escape(super.getParameter(name), EscapeUtils.EscapeType.ENCODE_URL_PARAM);
     }
 
     @Override
     public String[] getParameterValues(String name) {
         String[] values = super.getParameterValues(name);
         if (values == null) return null;
-
         String[] cleaned = new String[values.length];
         for (int i = 0; i < values.length; i++) {
-            cleaned[i] = EscapeUtils.escape(values[i], EscapeUtils.EscapeType.QUERY_PARAM);
+            cleaned[i] = EscapeUtils.escape(values[i], EscapeUtils.EscapeType.ENCODE_URL_PARAM);
         }
         return cleaned;
     }
@@ -45,25 +52,23 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public Map<String, String[]> getParameterMap() {
         Map<String, String[]> origin = super.getParameterMap();
-        Map<String, String[]> cleaned = new HashMap<>();
-
+        Map<String, String[]> cleaned = new LinkedHashMap<>();
         for (Map.Entry<String, String[]> e : origin.entrySet()) {
             String[] arr = e.getValue();
             String[] newArr = new String[arr.length];
             for (int i = 0; i < arr.length; i++) {
-                newArr[i] = EscapeUtils.escape(arr[i], EscapeUtils.EscapeType.QUERY_PARAM);
+                newArr[i] = EscapeUtils.escape(arr[i], EscapeUtils.EscapeType.ENCODE_URL_PARAM);
             }
             cleaned.put(e.getKey(), newArr);
         }
         return cleaned;
     }
 
-    // -----------------------------
-    // 2. Header 清理
-    // -----------------------------
+    // ---- Header ----
+
     @Override
     public String getHeader(String name) {
-        return EscapeUtils.escape(super.getHeader(name), EscapeUtils.EscapeType.HEADER);
+        return EscapeUtils.escape(super.getHeader(name), EscapeUtils.EscapeType.ENCODE_HEADER);
     }
 
     @Override
@@ -71,22 +76,20 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
         List<String> list = Collections.list(super.getHeaders(name));
         List<String> cleaned = new ArrayList<>();
         for (String v : list) {
-            cleaned.add(EscapeUtils.escape(v, EscapeUtils.EscapeType.HEADER));
+            cleaned.add(EscapeUtils.escape(v, EscapeUtils.EscapeType.ENCODE_HEADER));
         }
         return Collections.enumeration(cleaned);
     }
 
-    // -----------------------------
-    // 3. JSON Body 清理（递归清理）
-    // -----------------------------
+    // ---- JSON Body ----
+
     @Override
     public ServletInputStream getInputStream() {
         ByteArrayInputStream bais = new ByteArrayInputStream(cachedBody);
-
         return new ServletInputStream() {
             @Override public boolean isFinished() { return bais.available() == 0; }
             @Override public boolean isReady() { return true; }
-            @Override public void setReadListener(ReadListener readListener) {}
+            @Override public void setReadListener(ReadListener listener) {}
             @Override public int read() { return bais.read(); }
         };
     }
@@ -105,7 +108,6 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
         if (bodyBytes.length == 0) return bodyBytes;
 
         String bodyStr = new String(bodyBytes, StandardCharsets.UTF_8);
-
         JsonNode root = MAPPER.readTree(bodyStr);
         JsonNode cleaned = cleanJsonNode(root);
 
@@ -127,21 +129,18 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
         return baos.toByteArray();
     }
 
-    // -----------------------------
-    // JSON 递归清理
-    // -----------------------------
+    /**
+     * 递归清洗 JSON 节点中的字符串值，使用 OWASP HTML Sanitizer（纯文本模式）。
+     */
     private JsonNode cleanJsonNode(JsonNode node) {
         if (node.isObject()) {
-            Iterator<String> fields = node.fieldNames();
             Map<String, JsonNode> newMap = new LinkedHashMap<>();
-
-            while (fields.hasNext()) {
-                String key = fields.next();
-                JsonNode value = node.get(key);
-
-                // 清理 JSON value
+            for (Iterator<Map.Entry<String, JsonNode>> it = node.fields(); it.hasNext(); ) {
+                Map.Entry<String, JsonNode> entry = it.next();
+                String key = entry.getKey();
+                JsonNode value = entry.getValue();
                 if (value.isTextual()) {
-                    String cleaned = EscapeUtils.escape(value.asText(), EscapeUtils.EscapeType.JSON_VALUE);
+                    String cleaned = EscapeUtils.sanitizeHtmlToText(value.asText());
                     newMap.put(key, MAPPER.getNodeFactory().textNode(cleaned));
                 } else {
                     newMap.put(key, cleanJsonNode(value));
@@ -151,13 +150,14 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
         }
 
         if (node.isArray()) {
-            List<JsonNode> newList = new ArrayList<>();
+            List<JsonNode> newList = new ArrayList<>(node.size());
             for (JsonNode child : node) {
                 newList.add(cleanJsonNode(child));
             }
             return MAPPER.valueToTree(newList);
         }
 
+        // 数字/布尔/null 不处理
         return node;
     }
 }

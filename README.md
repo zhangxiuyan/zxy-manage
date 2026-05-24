@@ -14,3 +14,9 @@
 - **Spring Security集成**: 完整的认证授权框架
 - **BCrypt密码加密**: 安全的密码存储
 - **Redis令牌黑名单**: 支持令牌撤销和过期管理
+
+### xss过滤放啊
+请求 → XssFilter → XssRequestWrapper
+├── Query参数 → URL编码（不删内容）
+├── Header    → 剥离控制字符（RFC 7230）
+└── JSON Body → OWASP Sanitizer 纯文本（白名单，完整 HTML 解析）

@@ -26,9 +26,9 @@ import xyz.zhangxiuyan.manage.service.SysUserService;
 import xyz.zhangxiuyan.manage.service.TokenFamilyService;
 import xyz.zhangxiuyan.manage.service.TokenStoreService;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 

@@ -1,14 +1,18 @@
 package xyz.zhangxiuyan.manage.service.impl;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import xyz.zhangxiuyan.manage.utils.RsaUtil;
 import xyz.zhangxiuyan.manage.config.RsaKeyManager;
 import xyz.zhangxiuyan.manage.service.JwtService;
+import xyz.zhangxiuyan.manage.utils.RsaUtil;
 
-import javax.annotation.Resource;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Date;
@@ -41,18 +45,18 @@ public class JwtServiceImpl implements JwtService {
         try {
             PrivateKey privateKey = RsaUtil.getPrivateKey(rsaKeyManager.getPrivateKeyBase64());
             long now = System.currentTimeMillis();
-            String jti = UUID.randomUUID().toString();  // Unique token ID for blacklist tracking
+            String jti = UUID.randomUUID().toString();
 
             return Jwts.builder()
-                    .setId(jti)
-                    .setSubject(username)
+                    .id(jti)
+                    .subject(username)
                     .claim("userId", userId)
                     .claim("roles", roles)
-                    .claim("iss", ISSUER)
-                    .claim("aud", AUDIENCE)
-                    .setIssuedAt(new Date(now))
-                    .setExpiration(new Date(now + accessTtlSeconds * 1000))
-                    .signWith(privateKey, SignatureAlgorithm.RS256)
+                    .issuer(ISSUER)
+                    .audience().add(AUDIENCE).and()
+                    .issuedAt(new Date(now))
+                    .expiration(new Date(now + accessTtlSeconds * 1000))
+                    .signWith(privateKey, Jwts.SIG.RS256)
                     .compact();
         } catch (Exception e) {
             throw new RuntimeException("生成AccessToken失败", e);
@@ -61,18 +65,17 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateRefreshToken() {
-        // UUID + 随机串，长度充足且不可预测
-        return UUID.randomUUID().toString().replace("-", "") + RandomStringUtils.randomAlphanumeric(32);
+        return UUID.randomUUID().toString().replace("-", "") + RandomStringUtils.secure().nextAlphanumeric(32);
     }
 
     @Override
     public Jws<Claims> parseAndValidate(String token) {
         try {
             PublicKey publicKey = RsaUtil.getPublicKey(rsaKeyManager.getPublicKeyBase64());
-            return Jwts.parserBuilder()
-                    .setSigningKey(publicKey)
+            return Jwts.parser()
+                    .verifyWith(publicKey)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
         } catch (ExpiredJwtException eje) {
             throw eje;
         } catch (JwtException e) {
@@ -86,7 +89,7 @@ public class JwtServiceImpl implements JwtService {
     public String getJti(String token) {
         try {
             Jws<Claims> jws = parseAndValidate(token);
-            return jws.getBody().getId();
+            return jws.getPayload().getId();
         } catch (Exception e) {
             return null;
         }
@@ -96,7 +99,7 @@ public class JwtServiceImpl implements JwtService {
     public String getUserId(String token) {
         try {
             Jws<Claims> jws = parseAndValidate(token);
-            return jws.getBody().get("userId", String.class);
+            return jws.getPayload().get("userId", String.class);
         } catch (Exception e) {
             return null;
         }
@@ -107,7 +110,7 @@ public class JwtServiceImpl implements JwtService {
     public List<String> getRoles(String token) {
         try {
             Jws<Claims> jws = parseAndValidate(token);
-            return jws.getBody().get("roles", List.class);
+            return jws.getPayload().get("roles", List.class);
         } catch (Exception e) {
             return List.of();
         }
@@ -117,7 +120,7 @@ public class JwtServiceImpl implements JwtService {
     public long getExpirationSeconds(String token) {
         try {
             Jws<Claims> jws = parseAndValidate(token);
-            Date expiration = jws.getBody().getExpiration();
+            Date expiration = jws.getPayload().getExpiration();
             long remaining = (expiration.getTime() - System.currentTimeMillis()) / 1000;
             return Math.max(0, remaining);
         } catch (Exception e) {

@@ -1,0 +1,43 @@
+server:
+  port: 10010
+  servlet:
+    context-path: /manage
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant-path-matcher
+  datasource:
+    url:
+    username:
+    password:
+    driverClassName:
+    type:
+  data:
+    redis:
+      host:
+      port:
+      database:
+      password:
+druid:
+  filters: stat
+  initialSize: 1
+  minIdle: 1
+  maxActive: 20
+  maxWait: 6000
+  timeBetweenEvictionRunsMillis: 60000
+  minEvictableIdleTimeMillis: 300000
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: xyz.zhangxiuyan.manage.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+jwt:
+  access-token-expiration-seconds: 900
+  refresh-token-expiration-seconds: 604800

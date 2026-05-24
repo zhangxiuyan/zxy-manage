@@ -2,6 +2,7 @@ package xyz.zhangxiuyan.manage.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,8 +22,8 @@ import xyz.zhangxiuyan.manage.service.JwtService;
 import xyz.zhangxiuyan.manage.service.SysUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -205,7 +206,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         // Load roles
-        List<SimpleGrantedAuthority> authorities = loadUserAuthorities(user.getRoleId());
+        List<GrantedAuthority> authorities = loadUserAuthorities(user.getRoleId());
 
         LoginUser loginUser = new LoginUser();
         loginUser.setId(user.getId());
@@ -224,7 +225,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     /**
      * Load user authorities (roles) from database
      */
-    private List<SimpleGrantedAuthority> loadUserAuthorities(Long roleId) {
+    private List<GrantedAuthority> loadUserAuthorities(Long roleId) {
         if (roleId == null) {
             return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
         }

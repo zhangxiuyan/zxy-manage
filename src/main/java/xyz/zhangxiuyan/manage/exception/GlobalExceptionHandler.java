@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import xyz.zhangxiuyan.common.http.HttpResult;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.stream.Collectors;
 
 @Slf4j

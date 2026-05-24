@@ -7,7 +7,7 @@ import xyz.zhangxiuyan.manage.entity.dto.SysRouterDTO;
 import xyz.zhangxiuyan.manage.entity.vo.SysRouterVO;
 import xyz.zhangxiuyan.manage.service.SysRouterService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 /**

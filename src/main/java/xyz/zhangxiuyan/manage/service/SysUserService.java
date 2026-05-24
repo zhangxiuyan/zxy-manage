@@ -8,7 +8,7 @@ import xyz.zhangxiuyan.manage.entity.dto.UserUpdateRequestDTO;
 import xyz.zhangxiuyan.manage.entity.vo.UserResponseVO;
 import xyz.zhangxiuyan.manage.entity.vo.SysUserVO;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * <p>

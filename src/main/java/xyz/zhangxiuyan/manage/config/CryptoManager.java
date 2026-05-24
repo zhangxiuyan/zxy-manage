@@ -1,5 +1,7 @@
 package xyz.zhangxiuyan.manage.config;
 
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import xyz.zhangxiuyan.manage.utils.AesUtil;
 
-import javax.annotation.PostConstruct;
 
 /**
  * @author zxy
@@ -21,6 +22,7 @@ public class CryptoManager {
     @Value("${crypto.aes-key-base64:}")
     private String aesKeyFromConfig;
 
+    @Getter
     private String aesKeyBase64;
 
     @PostConstruct
@@ -32,11 +34,6 @@ public class CryptoManager {
             this.aesKeyBase64 = AesUtil.generateBase64Key();
             log.info("运行时生成 AES key（保存在内存）");
         }
-    }
-
-
-    public String getAesKeyBase64() {
-        return aesKeyBase64;
     }
 
 }

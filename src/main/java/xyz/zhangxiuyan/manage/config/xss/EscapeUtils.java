@@ -1,169 +1,167 @@
 package xyz.zhangxiuyan.manage.config.xss;
 
+import org.owasp.html.HtmlPolicyBuilder;
+import org.owasp.html.PolicyFactory;
+
 /**
- * 提供字符串转义与对 POJO/Map/List 结构的递归转义（用于 JSON 深度转义）
+ * XSS 安全工具类 — 按输出上下文提供编码/清洗策略。
+ * <p>
+ * 核心原则：
+ * <ul>
+ *   <li><b>HTML 富文本</b>：使用 OWASP HTML Sanitizer 白名单过滤（仅保留安全标签/属性）</li>
+ *   <li><b>JSON API</b>：不做 HTML 清洗，JSON 中的字符串由前端框架按上下文编码输出</li>
+ *   <li><b>HTTP Header</b>：按 RFC 7230 剥离控制字符</li>
+ *   <li><b>URL 参数</b>：只做 URL 编码，不删除内容</li>
+ * </ul>
+ *
+ * @see org.owasp.html.PolicyFactory
  */
 public final class EscapeUtils {
 
-    private EscapeUtils() {}
+    private EscapeUtils() {
+    }
+
+    // ---- OWASP HTML Sanitizer（白名单模式，只保留安全标签）----
 
     /**
-     * HTML 转义（基础版）
+     * 仅允许纯文本（所有 HTML 标签移除），保留换行。
      */
-    public static String escapeHtml(String input) {
+    private static final PolicyFactory TEXT_ONLY = new HtmlPolicyBuilder()
+            .toFactory();
+
+    /**
+     * 允许基础格式化标签（b, i, u, em, strong, p, br, ul, ol, li, a）。
+     * 链接仅保留 href（限定 http/https/mailto 协议）。
+     */
+    private static final PolicyFactory BASIC_FORMATTING = new HtmlPolicyBuilder()
+            .allowElements("b", "i", "u", "em", "strong", "p", "br",
+                    "ul", "ol", "li", "a", "span", "div")
+            .allowUrlProtocols("http", "https", "mailto")
+            .allowAttributes("href").onElements("a")
+            .allowAttributes("class").globally()
+            .toFactory();
+
+    // ---- 公共方法 ----
+
+    /**
+     * HTML 富文本清洗 — 仅保留纯文本，移除所有标签。
+     * 适用于用户昵称、评论等不需要富文本的字段。
+     */
+    public static String sanitizeHtmlToText(String input) {
+        if (input == null) return null;
+        return TEXT_ONLY.sanitize(input);
+    }
+
+    /**
+     * HTML 富文本清洗 — 保留安全的基础格式化标签。
+     * 适用于支持简单富文本的内容字段（如公告、介绍）。
+     */
+    public static String sanitizeHtmlBasic(String input) {
+        if (input == null) return null;
+        return BASIC_FORMATTING.sanitize(input);
+    }
+
+    /**
+     * HTML 实体编码 — 将特殊字符转为 HTML 实体。
+     * 适用于将用户数据显示在 HTML 标签内容中时使用。
+     */
+    public static String encodeHtml(String input) {
+        if (input == null) return null;
+        StringBuilder sb = new StringBuilder(input.length() + 16);
+        for (int i = 0, len = input.length(); i < len; i++) {
+            char c = input.charAt(i);
+            switch (c) {
+                case '&':  sb.append("&amp;"); break;
+                case '<':  sb.append("&lt;"); break;
+                case '>':  sb.append("&gt;"); break;
+                case '"':  sb.append("&quot;"); break;
+                case '\'': sb.append("&#39;"); break;
+                default:   sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * HTML 属性值编码 — 比标签内容更严格，额外编码空格和等号。
+     */
+    public static String encodeHtmlAttribute(String input) {
+        if (input == null) return null;
+        StringBuilder sb = new StringBuilder(input.length() + 16);
+        for (int i = 0, len = input.length(); i < len; i++) {
+            char c = input.charAt(i);
+            switch (c) {
+                case '&':  sb.append("&amp;"); break;
+                case '<':  sb.append("&lt;"); break;
+                case '>':  sb.append("&gt;"); break;
+                case '"':  sb.append("&quot;"); break;
+                case '\'': sb.append("&#39;"); break;
+                case ' ':  sb.append("&#32;"); break;
+                case '=':  sb.append("&#61;"); break;
+                case '`':  sb.append("&#96;"); break;
+                default:   sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * HTTP Header 值清洗 — 按 RFC 7230 剥离控制字符，仅保留可见 ASCII。
+     * Header 注入防御。
+     */
+    public static String encodeHeader(String input) {
         if (input == null) return null;
         StringBuilder sb = new StringBuilder(input.length());
-        for (char c : input.toCharArray()) {
-            switch (c) {
-                case '<': sb.append("&lt;"); break;
-                case '>': sb.append("&gt;"); break;
-                case '&': sb.append("&amp;"); break;
-                case '"': sb.append("&quot;"); break;
-                case '\'': sb.append("&#x27;"); break;
-                case '/': sb.append("&#x2F;"); break;
-                default: sb.append(c);
+        for (int i = 0, len = input.length(); i < len; i++) {
+            char c = input.charAt(i);
+            if (c >= 32 && c <= 126) {
+                sb.append(c);
             }
+            // 控制字符直接丢弃
         }
         return sb.toString();
     }
 
     /**
-     * HTML Attribute 属性值安全编码
+     * URL 参数值编码 — 使用 UTF-8 URL 编码。
+     * 不做内容删除，仅确保参数值在 URL 中安全传输。
      */
-    public static String escapeHtmlAttribute(String input) {
-        if (input == null) return null;
-        return escapeHtml(input)
-                .replace("(", "&#40;")
-                .replace(")", "&#41;")
-                .replace(":", "&#58;");
-    }
-
-    /**
-     * JavaScript String 安全编码
-     */
-    public static String escapeJsString(String input) {
-        if (input == null) return null;
-        StringBuilder sb = new StringBuilder();
-        for (char c : input.toCharArray()) {
-            switch (c) {
-                case '\\': sb.append("\\\\"); break;
-                case '\'': sb.append("\\'"); break;
-                case '"': sb.append("\\\""); break;
-                case '\n': sb.append("\\n"); break;
-                case '\r': sb.append("\\r"); break;
-                case '\t': sb.append("\\t"); break;
-                case '\b': sb.append("\\b"); break;
-                case '\f': sb.append("\\f"); break;
-                case '<': sb.append("\\u003C"); break;
-                case '>': sb.append("\\u003E"); break;
-                case '&': sb.append("\\u0026"); break;
-                case '=': sb.append("\\u003D"); break;
-                case '-': sb.append("\\u002D"); break;
-                default:
-                    if (c < 32 || c > 126) {
-                        sb.append(String.format("\\u%04x", (int) c));
-                    } else {
-                        sb.append(c);
-                    }
-            }
-        }
-        return sb.toString();
-    }
-
-    /**
-     * JSON Value 安全清洗（不破坏业务）
-     * 保留正常字符，只过滤危险标签特有模式
-     */
-    public static String escapeJsonValue(String input) {
-        if (input == null) return null;
-
-        String cleaned = input.replace("\u0000", ""); // NULL 字符消失攻击
-        cleaned = cleaned.replaceAll("(?i)<script.*?>.*?</script>", "");
-        cleaned = cleaned.replaceAll("(?i)javascript:", "");
-        cleaned = cleaned.replaceAll("(?i)onerror=", "");
-        cleaned = cleaned.replaceAll("(?i)onload=", "");
-        cleaned = cleaned.replaceAll("(?i)alert\\s*\\(", "");
-        return cleaned;
-    }
-
-    /**
-     * URL 参数编码（避免 XSS，不做完整 URL 编码）
-     */
-    public static String escapeUrlParam(String input) {
+    public static String encodeUrlParam(String input) {
         if (input == null) return null;
         try {
-            return java.net.URLEncoder.encode(input, "UTF-8")
-                    .replace("+", "%20")
-                    .replace("%2B", "%2B");
+            return java.net.URLEncoder.encode(input, "UTF-8");
         } catch (Exception e) {
             return input;
         }
     }
 
-    /**
-     * Query param 安全清理（过滤 XSS 特征 + 合法 URL 编码）
-     */
-    public static String escapeQueryParam(String input) {
-        if (input == null) return null;
-        return escapeUrlParam(
-                input.replaceAll("(?i)<.*?>", "")
-                        .replaceAll("(?i)script", "")
-                        .replaceAll("(?i)javascript:", "")
-                        .replaceAll("(?i)onerror=", "")
-        );
-    }
+    // ---- 场景枚举 ----
 
-    /**
-     * HTTP Header 安全清理（只允许可见 ASCII）
-     * RFC7230 标准：header-value 不允许控制字符
-     */
-    public static String escapeHeader(String input) {
-        if (input == null) return null;
-        StringBuilder sb = new StringBuilder();
-        for (char c : input.toCharArray()) {
-            if (c >= 32 && c <= 126) {
-                sb.append(c);
-            } else {
-                sb.append('?'); // 禁止控制符
-            }
-        }
-        return sb.toString();
-    }
-
-    /**
-     * 企业级总入口（按场景路由）
-     */
     public enum EscapeType {
-        HTML,
-        HTML_ATTRIBUTE,
-        JSON_VALUE,
-        JS_STRING,
-        URL_PARAM,
-        QUERY_PARAM,
-        HEADER
+        /** HTML 富文本 → 纯文本（OWASP Sanitizer） */
+        SANITIZE_TEXT,
+        /** HTML 富文本 → 保留基础格式（OWASP Sanitizer） */
+        SANITIZE_BASIC,
+        /** HTML 标签内容编码（实体转义） */
+        ENCODE_HTML,
+        /** HTML 属性值编码 */
+        ENCODE_HTML_ATTRIBUTE,
+        /** HTTP Header 值清洗 */
+        ENCODE_HEADER,
+        /** URL 参数值编码 */
+        ENCODE_URL_PARAM
     }
 
     public static String escape(String input, EscapeType type) {
         if (input == null) return null;
-
         switch (type) {
-            case HTML:
-                return escapeHtml(input);
-            case HTML_ATTRIBUTE:
-                return escapeHtmlAttribute(input);
-            case JSON_VALUE:
-                return escapeJsonValue(input);
-            case JS_STRING:
-                return escapeJsString(input);
-            case URL_PARAM:
-                return escapeUrlParam(input);
-            case QUERY_PARAM:
-                return escapeQueryParam(input);
-            case HEADER:
-                return escapeHeader(input);
-            default:
-                return input;
+            case SANITIZE_TEXT:       return sanitizeHtmlToText(input);
+            case SANITIZE_BASIC:      return sanitizeHtmlBasic(input);
+            case ENCODE_HTML:         return encodeHtml(input);
+            case ENCODE_HTML_ATTRIBUTE: return encodeHtmlAttribute(input);
+            case ENCODE_HEADER:       return encodeHeader(input);
+            case ENCODE_URL_PARAM:    return encodeUrlParam(input);
+            default:                  return input;
         }
     }
 }
-

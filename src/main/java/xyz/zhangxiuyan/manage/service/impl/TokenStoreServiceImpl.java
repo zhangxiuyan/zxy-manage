@@ -4,7 +4,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import xyz.zhangxiuyan.manage.service.TokenStoreService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -59,12 +59,12 @@ public class TokenStoreServiceImpl implements TokenStoreService {
         String tokenHash = hashToken(rawRefreshToken);
 
         // Check if blacklisted
-        if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(REFRESH_TOKEN_BLACKLIST_PREFIX + tokenHash))) {
+        if (stringRedisTemplate.hasKey(REFRESH_TOKEN_BLACKLIST_PREFIX + tokenHash)) {
             return false;
         }
 
         // Check if exists
-        return Boolean.TRUE.equals(stringRedisTemplate.hasKey(REFRESH_TOKEN_PREFIX + tokenHash));
+        return stringRedisTemplate.hasKey(REFRESH_TOKEN_PREFIX + tokenHash);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class TokenStoreServiceImpl implements TokenStoreService {
 
     @Override
     public boolean isAccessTokenBlacklisted(String jti) {
-        return Boolean.TRUE.equals(stringRedisTemplate.hasKey(ACCESS_TOKEN_BLACKLIST_PREFIX + jti));
+        return stringRedisTemplate.hasKey(ACCESS_TOKEN_BLACKLIST_PREFIX + jti);
     }
 
     @Override

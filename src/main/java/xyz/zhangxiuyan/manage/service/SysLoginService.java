@@ -4,8 +4,8 @@ import xyz.zhangxiuyan.manage.entity.SysUser;
 import xyz.zhangxiuyan.manage.entity.dto.LoginRequestDTO;
 import xyz.zhangxiuyan.manage.entity.vo.LoginResponseVO;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 public interface SysLoginService {

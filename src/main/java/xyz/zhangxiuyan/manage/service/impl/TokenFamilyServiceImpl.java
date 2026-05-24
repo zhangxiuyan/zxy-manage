@@ -4,7 +4,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import xyz.zhangxiuyan.manage.service.TokenFamilyService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +42,7 @@ public class TokenFamilyServiceImpl implements TokenFamilyService {
         }
 
         String tokenKey = FAMILY_TOKEN_PREFIX + familyId + ":" + hashToken(refreshToken);
-        return Boolean.TRUE.equals(stringRedisTemplate.hasKey(tokenKey));
+        return stringRedisTemplate.hasKey(tokenKey);
     }
 
     @Override
@@ -83,13 +83,13 @@ public class TokenFamilyServiceImpl implements TokenFamilyService {
     public boolean isTokenReuseDetected(String refreshToken, String familyId) {
         // If the token exists in used_tokens, it means it was already used in this family
         String usedKey = "used_token:" + FAMILY_TOKEN_PREFIX + familyId + ":" + hashToken(refreshToken);
-        return Boolean.TRUE.equals(stringRedisTemplate.hasKey(usedKey));
+        return stringRedisTemplate.hasKey(usedKey);
     }
 
     @Override
     public void invalidateFamily(String familyId) {
         String familyKey = TOKEN_FAMILY_PREFIX + familyId;
-        String familyState = stringRedisTemplate.getAndDelete(familyKey);
+        String familyState = stringRedisTemplate.opsForValue().getAndDelete(familyKey);
 
         if (familyState != null) {
             // Delete all tokens in this family

@@ -1,18 +1,14 @@
 package xyz.zhangxiuyan.manage.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * <p>
- * 
- * </p>
- *
- * @author zxy
- * @since 2023-06-12
- */
+@Data
+@NoArgsConstructor
 @TableName("sys_user")
 public class SysUser implements Serializable {
 
@@ -68,144 +64,4 @@ public class SysUser implements Serializable {
 
     @TableField("role_id")
     private Long roleId;
-
-    public SysUser() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public String getWxOpenid() {
-        return wxOpenid;
-    }
-
-    public void setWxOpenid(String wxOpenid) {
-        this.wxOpenid = wxOpenid;
-    }
-
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
-
-    public LocalDateTime getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(LocalDateTime updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Integer getDeleteFlag() {
-        return deleteFlag;
-    }
-
-    public void setDeleteFlag(Integer deleteFlag) {
-        this.deleteFlag = deleteFlag;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public String getLastLoginIp() {
-        return lastLoginIp;
-    }
-
-    public void setLastLoginIp(String lastLoginIp) {
-        this.lastLoginIp = lastLoginIp;
-    }
-
-    public LocalDateTime getLastLoginTime() {
-        return lastLoginTime;
-    }
-
-    public void setLastLoginTime(LocalDateTime lastLoginTime) {
-        this.lastLoginTime = lastLoginTime;
-    }
-
-    public Long getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Long getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
-    }
-
 }

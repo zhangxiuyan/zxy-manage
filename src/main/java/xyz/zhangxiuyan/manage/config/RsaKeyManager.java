@@ -1,11 +1,12 @@
 package xyz.zhangxiuyan.manage.config;
 
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import xyz.zhangxiuyan.manage.utils.RsaUtil;
 
-import javax.annotation.PostConstruct;
 import java.security.KeyPair;
 import java.util.Base64;
 
@@ -16,6 +17,7 @@ import java.util.Base64;
  * @author zxy
  * @version 1.0 - 2025/10/20
  */
+@Getter
 @Component
 public class RsaKeyManager {
 
@@ -26,18 +28,6 @@ public class RsaKeyManager {
     private String publicKeyBase64;
 
     private String privateKeyBase64;
-
-    public KeyPair getKeyPair() {
-        return keyPair;
-    }
-
-    public String getPublicKeyBase64() {
-        return publicKeyBase64;
-    }
-
-    public String getPrivateKeyBase64() {
-        return privateKeyBase64;
-    }
 
     @PostConstruct
     public void init() {

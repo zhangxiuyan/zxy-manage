@@ -22,4 +22,5 @@ public class XssFilterConfig {
         registration.setOrder(1); // 保证在 Spring Security 之前或者你需要的位置
         return registration;
     }
+
 }

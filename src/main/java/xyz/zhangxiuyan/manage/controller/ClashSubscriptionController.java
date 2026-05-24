@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.zhangxiuyan.manage.service.ClashSubscriptionService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
  * @author zxy

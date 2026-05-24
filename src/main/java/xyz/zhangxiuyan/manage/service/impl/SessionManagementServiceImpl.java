@@ -11,15 +11,13 @@ import xyz.zhangxiuyan.manage.exception.BusinessException;
 import xyz.zhangxiuyan.manage.mapper.UserSessionMapper;
 import xyz.zhangxiuyan.manage.service.SessionManagementService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 会话管理服务实现

@@ -10,7 +10,7 @@ import xyz.zhangxiuyan.manage.mapper.ClashSubscriptionMapper;
 import xyz.zhangxiuyan.manage.service.ClashSubscriptionService;
 import xyz.zhangxiuyan.manage.service.ClashTokenService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Base64;
 import java.util.List;
 

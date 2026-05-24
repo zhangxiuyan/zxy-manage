@@ -1,12 +1,13 @@
 package xyz.zhangxiuyan.manage.entity.dto;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * User update request DTO
- */
+@Data
+@NoArgsConstructor
 public class UserUpdateRequestDTO {
 
     @Size(max = 128, message = "{business.user.nickname.size}")
@@ -18,31 +19,4 @@ public class UserUpdateRequestDTO {
 
     @Pattern(regexp = "^[0-9]{0,20}$", message = "{business.user.mobile.invalid.format}")
     private String mobile;
-
-    public UserUpdateRequestDTO() {
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
 }

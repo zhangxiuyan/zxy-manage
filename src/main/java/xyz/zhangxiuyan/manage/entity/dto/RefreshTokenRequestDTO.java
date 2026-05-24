@@ -1,23 +1,11 @@
 package xyz.zhangxiuyan.manage.entity.dto;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-/**
- * 刷新令牌请求DTO
- *
- * @author zxy
- * @version 1.0 - 2025/10/23
- */
+@Data
 public class RefreshTokenRequestDTO {
 
     @NotBlank(message = "{business.auth.refresh.token.required}")
     private String refreshToken;
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
 }

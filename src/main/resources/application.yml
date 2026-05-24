@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: zxy-manage
+  profiles:
+    active: dev
+  messages:
+    encoding: UTF-8
+
+# springdoc-openapi
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+# knife4j
+knife4j:
+  enable: true
+  setting:
+    language: zh-CN
+    enable-swagger-models: true

@@ -1,12 +1,13 @@
 package xyz.zhangxiuyan.manage.entity.dto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * User registration request DTO
- */
+@Data
+@NoArgsConstructor
 public class RegisterRequestDTO {
 
     @NotBlank(message = "{business.user.accountId.required}")
@@ -20,31 +21,4 @@ public class RegisterRequestDTO {
 
     @NotBlank(message = "{business.user.password.required}")
     private String password;
-
-    public RegisterRequestDTO() {
-    }
-
-    public String getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }
