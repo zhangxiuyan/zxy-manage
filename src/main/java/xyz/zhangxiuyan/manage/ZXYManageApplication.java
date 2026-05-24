@@ -7,17 +7,19 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
 //import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
-@SpringBootApplication(scanBasePackages = {"xyz.zhangxiuyan.common", "xyz.zhangxiuyan.manage"})
+@SpringBootApplication(scanBasePackages = {
+        "xyz.zhangxiuyan.common",
+        "xyz.zhangxiuyan.manage"})
 //@EnableDiscoveryClient
-public class ZxyManageApplication extends SpringBootServletInitializer {
+public class ZXYManageApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
-        SpringApplication.run(ZxyManageApplication.class, args);
+        SpringApplication.run(ZXYManageApplication.class, args);
     }
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.sources(ZxyManageApplication.class);
+        return builder.sources(ZXYManageApplication.class);
     }
 
 }

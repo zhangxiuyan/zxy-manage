@@ -21,6 +21,9 @@ public class SysUser implements Serializable {
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
+    @TableField("account_id")
+    private String accountId;
+
     @TableField("email")
     private String email;
 
@@ -38,6 +41,9 @@ public class SysUser implements Serializable {
 
     @TableField("avatar")
     private String avatar;
+
+    @TableField("wx_openid")
+    private String wxOpenid;
 
     @TableField(value = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
@@ -60,6 +66,9 @@ public class SysUser implements Serializable {
     @TableField("created_by")
     private Long createdBy;
 
+    @TableField("role_id")
+    private Long roleId;
+
     public SysUser() {
     }
 
@@ -69,6 +78,14 @@ public class SysUser implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 
     public String getEmail() {
@@ -117,6 +134,14 @@ public class SysUser implements Serializable {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getWxOpenid() {
+        return wxOpenid;
+    }
+
+    public void setWxOpenid(String wxOpenid) {
+        this.wxOpenid = wxOpenid;
     }
 
     public LocalDateTime getCreateTime() {
@@ -173,6 +198,14 @@ public class SysUser implements Serializable {
 
     public void setCreatedBy(Long createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 
 }

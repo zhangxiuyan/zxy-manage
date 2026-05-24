@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.BeanUtils;
 import xyz.zhangxiuyan.common.exception.BusinessException;
-import xyz.zhangxiuyan.manage.common.Constants.SystemConstant;
+import xyz.zhangxiuyan.manage.Constants.SystemConstant;
 import xyz.zhangxiuyan.manage.entity.SysRouter;
 import xyz.zhangxiuyan.manage.entity.dto.SysRouterDTO;
 import xyz.zhangxiuyan.manage.entity.vo.SysRouterVO;

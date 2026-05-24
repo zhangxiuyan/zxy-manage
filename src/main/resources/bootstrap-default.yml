@@ -1,0 +1,16 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr:          # Nacos 地址
+        namespace:            # 命名空间 ID
+        group:                # 配置分组
+        file-extension:       # 配置文件格式
+        shared-configs:       # 共享配置列表
+          - data-id:
+            group:
+            refresh:
+      discovery:
+        server-addr:          # Nacos 注册中心地址
+        namespace:
+        group:

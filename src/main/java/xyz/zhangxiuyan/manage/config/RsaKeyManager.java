@@ -3,7 +3,7 @@ package xyz.zhangxiuyan.manage.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import xyz.zhangxiuyan.manage.common.utils.RsaUtil;
+import xyz.zhangxiuyan.manage.utils.RsaUtil;
 
 import javax.annotation.PostConstruct;
 import java.security.KeyPair;
@@ -21,9 +21,15 @@ public class RsaKeyManager {
 
     private static final Logger log = LoggerFactory.getLogger(RsaKeyManager.class);
 
+    private KeyPair keyPair;
+
     private String publicKeyBase64;
 
     private String privateKeyBase64;
+
+    public KeyPair getKeyPair() {
+        return keyPair;
+    }
 
     public String getPublicKeyBase64() {
         return publicKeyBase64;
@@ -36,7 +42,7 @@ public class RsaKeyManager {
     @PostConstruct
     public void init() {
         log.info("🔐 正在生成RSA密钥对...");
-        KeyPair keyPair = RsaUtil.generateKeyPairDefault();
+        keyPair = RsaUtil.generateKeyPairDefault();
         publicKeyBase64 = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
         privateKeyBase64 = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
         log.info("✅ RSA密钥对生成完成，已存入内存");

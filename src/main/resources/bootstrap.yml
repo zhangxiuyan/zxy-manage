@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: zxy-manage
+  profiles:
+    active: default
+  messages:
+    encoding: UTF-8

@@ -1,4 +1,4 @@
-package xyz.zhangxiuyan.manage.common.utils;
+package xyz.zhangxiuyan.manage.utils;
 
 import javax.crypto.Cipher;
 import java.nio.charset.StandardCharsets;

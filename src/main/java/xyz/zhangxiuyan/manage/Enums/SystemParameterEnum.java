@@ -1,4 +1,4 @@
-package xyz.zhangxiuyan.manage.common.Enums;
+package xyz.zhangxiuyan.manage.Enums;
 
 public enum SystemParameterEnum {
 

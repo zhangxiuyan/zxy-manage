@@ -1,4 +1,4 @@
-package xyz.zhangxiuyan.manage.common.Constants;
+package xyz.zhangxiuyan.manage.Constants;
 
 /**
  * @author zxy
